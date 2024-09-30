@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Witch, please! Character Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('https://cdn.pixabay.com/animation/2023/01/17/08/02/08-02-46-918_512.gif');
+            background-size: cover;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0 10px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            font-family: 'Uncial Antiqua', cursive;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+        .small-select {
+            width: 18%;
+            padding: 5px;
+            margin: 5px 1%;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .character-sheet {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        .attributes label {
+            display: inline-block;
+            width: 18%;
+            margin-right: 1%;
+            text-align: center;
+        }
+        .attributes select {
+            width: 100%;
+            padding: 5px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .profession-description, .coven-description {
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        .bond-sentence {
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #444;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        #generator {
+            margin-top: 20px;
+            display: none;
+        }
+        .backstory-option {
+            margin-bottom: 10px;
+        }
+        .character-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+        }
+        .choice-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .choice-buttons button {
+            width: 48%;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Witch, please! Character Generator</h1>
+
+        <div id="characterSheet" class="character-sheet" style="display:none;"></div>
+
+        <div class="choice-buttons">
+            <button id="randomizeBtn">Make a Witch at Random!</button>
+            <button id="customBtn">Create Your Own Witch</button>
+        </div>
+
+        <div id="generator">
+            <h2>Create Your Own Witch</h2>
+            <h3>Which kind of Witch are you?</h3>
+            <select id="archetype">
+                <option value="">Select Archetype</option>
+                <option value="Verdantia">Verdantia (Nature Witch)</option>
+                <option value="Tenebris">Tenebris (Wicked Witch)</option>
+                <option value="Vigilans">Vigilans (Veil Protector Witch)</option>
+                <option value="Sanguis">Sanguis (Blood Witch)</option>
+                <option value="Somnium">Somnium (Dream Weaver Witch)</option>
+            </select>
+
+            <div id="drives"></div>
+            <div id="names"></div>
+            <div id="professions"></div>
+            <div id="bonds"></div>
+            <div id="backstories"></div>
+            <div id="attributes"></div>
+            <div id="moves"></div>
+            <div id="covens"></div>
+
+            <button id="generateBtn">Generate Character Sheet</button>
+        </div>
+    </div>
+
+
+    <script>
+        
+          document.getElementById('customBtn').addEventListener('click', function() {
+            document.getElementById('generator').style.display = 'block';
+            document.getElementById('characterSheet').style.display = 'none';
+            // Reset the form
+            document.getElementById('archetype').value = '';
+            clearSections();
+            window.scrollTo({ top: document.getElementById('generator').offsetTop, behavior: 'smooth' });
+        });
+        const data = {
+            Verdantia: {
+                description: "As a Verdantia, you draw power from nature, embodying the wild's resilience and nurturing growth.",
+                drives: [
+                    "Protect the Wilds: Defend a natural place or creature from destruction or harm.",
+                    "Restore Balance: Heal a corrupted land or bring balance back to a chaotic environment.",
+                    "Nurture Growth: Help something or someone grow to their full potential, be it a plant, person, or magical force."
+                ],
+                names: [
+                    "Thalassa Greenleaf",
+                    "Rowan Earthspeaker",
+                    "Ivy Thornbriar",
+                    "Sylva Mosswhisper",
+                    "Fern Willowshade"
+                ],
+                professions: [
+                    {
+                        name: "Gardener",
+                        description: "Working in parks or private estates, using their knowledge of plants to design beautiful and sustainable green spaces."
+                    },
+                    {
+                        name: "Farmer",
+                        description: "Growing crops and raising animals with an intimate connection to the land, ensuring bountiful harvests and healthy livestock."
+                    },
+                    {
+                        name: "Herbalist",
+                        description: "Running an apothecary or herbal shop, creating remedies and natural products for everyday health and wellness."
+                    },
+                    {
+                        name: "Park Ranger",
+                        description: "Protecting natural reserves and wildlife, ensuring the environment is maintained, and preventing illegal activities like poaching."
+                    },
+                    {
+                        name: "Landscaper",
+                        description: "Designing and cultivating residential or commercial outdoor spaces, enhancing aesthetic and ecological value."
+                    }
+                ],
+                bonds: [
+                    "[NPC Name] does not respect nature’s balance, and I must teach them the importance of harmony.",
+                    "I trust [NPC Name] because they share my love for the natural world and its protection.",
+                    "[NPC Name] once destroyed a part of the forest, and I will never forgive them."
+                ],
+                backstories: [
+                    "To Save a Dying Forest: You witnessed a sacred forest slowly dying from human exploitation and disease. In desperation, you sealed the pact to gain the power to heal the land, but now nature demands that you pay the price for this gift.",
+                    "To Avenge the Destruction of Nature: Your homeland was ravaged by industrial expansion, leaving the wilderness in ruins. You sealed the pact to gain vengeance against those who destroy nature, with the promise that you would protect the earth at any cost.",
+                    "To Protect the Last of an Endangered Species: An ancient species, nearly extinct, depended on your protection. You made a pact to ensure their survival, but the price was your freedom as you became forever bound to the will of nature’s forces."
+                ],
+                images: [
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-2ca57097-2afb-4162-bf9d-fdcff855c3730251674662282579317900.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-21fcc742-e198-4117-bd31-13db8d78332b0251674662282579317900.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-7235ba4f-c1d2-43f9-9133-6fca462ccd470251674662282579317900.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57"
+                ],
+                moves: [
+                    {
+                        name: "Commune with Nature",
+                        rules: "<strong>16+:</strong> Speak with plants and animals to gain full information or insight.<br><strong>11-14:</strong> Commune with nature, but the information is fragmented or unclear."
+                    },
+                    {
+                        name: "Root Binding",
+                        rules: "<strong>16+:</strong> Ensnare a foe completely with roots or vines, immobilizing them.<br><strong>11-14:</strong> The roots bind but leave gaps, allowing partial movement."
+                    },
+                    {
+                        name: "Herbal Potions",
+                        rules: "Brew potions from herbs and plants that heal, cure diseases, or enhance physical strength."
+                    },
+                    {
+                        name: "Minor Naturecraft",
+                        rules: "Perform small acts of nature magic, like making flowers bloom, purifying water, or calling a light breeze."
+                    }
+                ]
+            },
+            Tenebris: {
+                description: "As a Tenebris, you embrace the shadows, wielding darkness and fear as your allies.",
+                drives: [
+                    "Spread Fear: Instill fear in a powerful figure or organization, forcing them to retreat or comply.",
+                    "Corrupt the Pure: Lead someone innocent or righteous down a darker path, bending them to your will.",
+                    "Gain Forbidden Knowledge: Discover a secret or dark knowledge that grants significant power."
+                ],
+                names: [
+                    "Morgana Nightshade",
+                    "Vesper Darkthorn",
+                    "Lydia Shadowborn",
+                    "Selene Blackspire",
+                    "Nyx Ravenveil"
+                ],
+                professions: [
+                    {
+                        name: "Private Investigator",
+                        description: "Working in the shadows to uncover secrets, track down individuals, and gather information while staying unnoticed."
+                    },
+                    {
+                        name: "Psychologist",
+                        description: "Delving into the minds of patients, diagnosing and helping them work through fear, anxiety, and darker emotions."
+                    },
+                    {
+                        name: "Lawyer",
+                        description: "Manipulating legal systems and working cases where deception, strategy, and clever arguments win the day."
+                    },
+                    {
+                        name: "Negotiator",
+                        description: "Mediating high-stakes negotiations, using a sharp mind to gain favorable outcomes for clients."
+                    },
+                    {
+                        name: "Security Consultant",
+                        description: "Helping protect assets through psychological tactics, strategic thinking, and risk assessment."
+                    }
+                ],
+                bonds: [
+                    "[NPC Name] fears my power, and I enjoy using that fear to my advantage.",
+                    "[NPC Name] seeks my dark magic for their own purpose, but I will make them pay a price.",
+                    "I cursed [NPC Name], and they still don’t know it was me. I must ensure they never find out."
+                ],
+                backstories: [
+                    "For Ultimate Power: You craved power beyond what any mortal could possess. You sealed the pact with dark forces to gain ultimate control over your enemies and your fate, but now the darkness has a claim on your soul.",
+                    "To Get Revenge: Betrayed and humiliated by someone close to you, you sealed the pact to gain the dark power needed for revenge. Your hunger for vengeance drove you to this path, and now the shadows guide your actions.",
+                    "To Escape Death: You were on the verge of death—perhaps from sickness or an accident—but refused to let go. Sealing the pact saved your life, but now you live in the shadows, forever tied to the darkness that saved you."
+                ],
+                images: [
+                     "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-5553792f-b8d9-4d6c-b1e0-09bf2f463c850251674662208578120000.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-8d3fa299-4ffa-4106-98bd-ead73a5d91430251674662208578120000.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-80c671de-658d-40bf-bc6f-1ffd9600a3110251674662208593743500.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-b24bfff6-7d21-4ce4-af9d-15667fb0332a0251674662208187489000.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57"
+
+                ],
+                moves: [
+                    {
+                        name: "Curse of Fear",
+                        rules: "<strong>16+:</strong> Instill overwhelming terror, making the target flee or break mentally.<br><strong>11-14:</strong> The target is fearful, but still able to act under duress."
+                    },
+                    {
+                        name: "Shadowbind",
+                        rules: "<strong>16+:</strong> Envelop a target in shadows, completely immobilizing them.<br><strong>11-14:</strong> The shadows bind, but leave enough movement for slight resistance."
+                    },
+                    {
+                        name: "Dark Potions",
+                        rules: "Brew potions that cause fear, confusion, or poison your enemies."
+                    },
+                    {
+                        name: "Minor Shadowcraft",
+                        rules: "Perform small acts of shadow magic, like extinguishing lights or casting fleeting illusions."
+                    }
+                ]
+            },
+            Vigilans: {
+                description: "As a Vigilans, you are a guardian of the veil, mediating between the realms of the living and the dead.",
+                drives: [
+                    "Guard the Veil: Prevent an entity or force from crossing the veil between the living and the dead.",
+                    "Reveal the Hidden: Uncover a supernatural force or being hiding in the material world and bring it to light.",
+                    "Aid the Lost: Guide a lost soul or spirit safely through the veil to its final destination."
+                ],
+                names: [
+                    "Eirwen Ghostsong",
+                    "Ariadne Greymist",
+                    "Seraphina Veilguard",
+                    "Isolde Moonveil",
+                    "Thalia Spiritward"
+                ],
+                professions: [
+                    {
+                        name: "Funeral Director",
+                        description: "Helping families through grieving, ensuring proper care for the dead while respecting the veil between life and death."
+                    },
+                    {
+                        name: "Detective",
+                        description: "Solving cold cases and unsolved crimes, often those involving mysterious or unexplained circumstances."
+                    },
+                    {
+                        name: "Museum Curator",
+                        description: "Managing historical collections, particularly items with spiritual or religious significance."
+                    },
+                    {
+                        name: "Historian",
+                        description: "Researching ancient cultures, focusing on death rituals and the afterlife."
+                    },
+                    {
+                        name: "Psychiatric Nurse",
+                        description: "Providing care for patients dealing with trauma, mental illness, or spiritual crises."
+                    }
+                ],
+                bonds: [
+                    "[NPC Name] witnessed something they weren’t meant to see, and I need to protect them from the truth.",
+                    "[NPC Name] has been touched by the other side, and only I can help them find peace.",
+                    "[NPC Name] does not understand the danger of meddling with spirits, and I must keep them safe."
+                ],
+                backstories: [
+                    "To Protect the Veil: You discovered a dangerous breach in the veil between the living and the dead, threatening the balance of both realms. You sealed the pact to gain the power to protect the veil, knowing it would tie you forever to the spiritual world.",
+                    "To Speak with a Lost Loved One: A loved one passed on before you could say goodbye. In your grief, you sought the means to speak with them one last time. The pact granted this, but now spirits visit you uninvited, and the dead never stop whispering.",
+                    "To Banish an Ancient Spirit: A powerful, malevolent spirit threatened your home, and no mortal could stop it. You sealed the pact to banish this spirit, but the cost was your freedom, as you now serve the spirits you once sought to control."
+                ],
+                images: [
+                   "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-39ce0ee5-b6d2-464a-883f-3c6e7ade6c590251674662147502573800.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-d03659a9-aac6-4681-85e3-1743e80b4c270251674662147502573800.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-739fb37c-76ef-42f9-b1e9-3db958789c050251674662147502573800.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-5bb82a24-d09d-407f-8bba-15514c6ef61f0251674662147502573800.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57"
+
+                ],
+                moves: [
+                    {
+                        name: "Sense the Veil",
+                        rules: "<strong>16+:</strong> Sense disturbances or breaches in the veil, revealing hidden forces.<br><strong>11-14:</strong> Sense the veil, but details are unclear."
+                    },
+                    {
+                        name: "Ethereal Ward",
+                        rules: "<strong>16+:</strong> Create a powerful ward that prevents spirits or supernatural forces from entering.<br><strong>11-14:</strong> The ward holds but is unstable."
+                    },
+                    {
+                        name: "Veil Potions",
+                        rules: "Brew potions that provide protection from spirits or reveal hidden entities."
+                    },
+                    {
+                        name: "Minor Veilcraft",
+                        rules: "Perform small acts of veil magic, like creating ghostly lights or hiding someone from supernatural detection."
+                    }
+                ]
+            },
+            Sanguis: {
+                description: "As a Sanguis, you harness the potent energies of blood, wielding it to heal or harm.",
+                drives: [
+                    "Feed the Pact: Sacrifice someone’s blood or life force to strengthen your bond with your patron.",
+                    "Gain Power Through Blood: Take control of someone or something using the power of blood magic.",
+                    "Master the Flesh: Use blood magic to heal or harm, manipulating flesh to serve your needs."
+                ],
+                names: [
+                    "Vladis Crimsonblade",
+                    "Selina Bloodthorn",
+                    "Kieran Redfang",
+                    "Lilith Ironblood",
+                    "Morwenna Heartbane"
+                ],
+                professions: [
+                    {
+                        name: "Nurse",
+                        description: "Working in hospitals, using medical skills and knowledge of blood to provide care."
+                    },
+                    {
+                        name: "Butcher",
+                        description: "Preparing meat for sale, ensuring quality while working with blood daily."
+                    },
+                    {
+                        name: "Phlebotomist",
+                        description: "Specializing in drawing blood for medical purposes, working in labs or clinics."
+                    },
+                    {
+                        name: "Paramedic",
+                        description: "Responding to emergencies, providing life-saving care in high-pressure situations."
+                    },
+                    {
+                        name: "Boxing Trainer",
+                        description: "Coaching athletes in combat sports, emphasizing strength and endurance."
+                    }
+                ],
+                bonds: [
+                    "[NPC Name] owes me a blood debt, and I will collect it when the time is right.",
+                    "I saved [NPC Name] using blood magic, but they fear what they don’t understand.",
+                    "[NPC Name] is tied to me by blood, and I must ensure they stay loyal."
+                ],
+                backstories: [
+                    "To Save Someone You Love: A loved one was dying, and no medicine could save them. In desperation, you made a blood pact, exchanging life for life. They survived, but now you must continue to pay the price in blood.",
+                    "To Gain Immortality: The fear of death consumed you, so you sought the forbidden path to immortality. Sealing the pact gave you extended life, but now you must feed your unnatural existence with the blood of others.",
+                    "To Conquer Your Enemies: In a battle for power, you were losing, overpowered by your rivals. The pact gave you the strength to win, but now your victories come at the cost of blood, and the need for power grows stronger each day."
+                ],
+                images: [
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-583ded4c-f9d6-447a-965f-e0c8bd5d68fb0251674662076506192500.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-c5187ed9-6a5b-4d90-99f0-9ebebcbef1250251674662076506192500.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-eb8a3299-0d65-493d-8ee3-2de9107169bd0251674662076506192500.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-a700047d-4c15-4261-89a7-0f781942fa6a0251674662076506192500.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57"
+
+                ],
+                moves: [
+                    {
+                        name: "Blood Sacrifice",
+                        rules: "<strong>16+:</strong> Sacrifice blood to fully empower a spell, gaining significant strength.<br><strong>11-14:</strong> The sacrifice empowers the spell but causes unintended consequences."
+                    },
+                    {
+                        name: "Crimson Chains",
+                        rules: "<strong>16+:</strong> Bind someone to your will with a blood pact.<br><strong>11-14:</strong> The pact holds, but the target may resist."
+                    },
+                    {
+                        name: "Blood Potions",
+                        rules: "Brew potions using blood to heal, enhance strength, or control others."
+                    },
+                    {
+                        name: "Minor Bloodcraft",
+                        rules: "Perform small acts of blood magic, like clotting wounds or tracking someone by their blood."
+                    }
+                ]
+            },
+            Somnium: {
+                description: "As a Somnium, you delve into the realm of dreams, weaving illusions and uncovering hidden truths.",
+                drives: [
+                    "Weave Dreams: Enter someone’s dream and alter it to manipulate their thoughts or actions.",
+                    "Harvest Secrets: Extract a secret or hidden truth from someone’s subconscious through their dreams.",
+                    "Create Nightmares: Plant a nightmare in someone’s mind, leaving them fearful or weakened in the waking world."
+                ],
+                names: [
+                    "Astrid Dreamweaver",
+                    "Noctis Starshade",
+                    "Ophelia Lunasleep",
+                    "Ishtar Dreamwalker",
+                    "Cassandra Nightwhisper"
+                ],
+                professions: [
+                    {
+                        name: "Therapist",
+                        description: "Helping people understand their dreams and emotions, guiding them through mental challenges."
+                    },
+                    {
+                        name: "Sleep Researcher",
+                        description: "Studying sleep disorders, dream patterns, and the importance of rest."
+                    },
+                    {
+                        name: "Author",
+                        description: "Writing fiction that draws heavily on dream imagery and fantastical elements."
+                    },
+                    {
+                        name: "Artist",
+                        description: "Creating surrealist or dream-inspired visual art, reflecting the mysteries of the mind."
+                    },
+                    {
+                        name: "Yoga Instructor",
+                        description: "Teaching meditation and mindfulness, guiding students to explore their inner world."
+                    }
+                ],
+                bonds: [
+                    "I’ve seen into [NPC Name]’s dreams, and they fear what I now know about them.",
+                    "[NPC Name] seeks my guidance in navigating their dreams, but I may lead them astray.",
+                    "[NPC Name] tried to manipulate my dreams, but I turned the tables on them."
+                ],
+                backstories: [
+                    "To Escape Endless Nightmares: You were plagued by endless nightmares that seemed more real with every passing night. Desperate for peace, you sealed the pact to control your dreams, but now you see dreams and reality as one, forever tied to the dreamscape.",
+                    "To Unlock the Secrets of the Mind: The mysteries of the mind fascinated you, and you sought to unlock its deepest secrets. The pact gave you access to the dream world, where every hidden truth lies, but now the dreams speak to you even when awake.",
+                    "To Save Someone Trapped in a Dream: Someone dear to you fell into a magical sleep and could not wake. You made a pact to enter their dream and save them, but now you wander the dream world at night, never fully waking, as the dreams still call to you."
+                ],
+                images: [
+                     "https://home.microsoftpersonalcontent.com/contentstorage/coJsE0OdIkqu2uEOCncHOQAAAAAAAAAA4XIukrgDo48/_layouts/15/download.aspx?UniqueId=e651c123-d44f-40ff-896a-872d9df46670&Translate=false&tempauth=v1e.eyJzaXRlaWQiOiI4OTY0OWFhMi1jZjQxLTRmOTgtYjU2NS01OTE5ZTFlNmZiMmYiLCJhcHBfZGlzcGxheW5hbWUiOiJEZXNpZ25lciIsImFwcGlkIjoiNWUyNzk1ZTMtY2U4Yy00Y2ZiLWIzMDItMzVmZTVjZDAxNTk3IiwiYXVkIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwL2hvbWUubWljcm9zb2Z0cGVyc29uYWxjb250ZW50LmNvbUA5MTg4MDQwZC02YzY3LTRjNWItYjExMi0zNmEzMDRiNjZkYWQiLCJleHAiOiIxNzI3NjQ0MDYxIn0.mAP9De0aar_qQ9AcZQw2OmLY-yuQPpVi0AeEQY8RxNcPm2uH7Iq0rWKOR6juC7dG1oYuBa9Qr9KTW5xGz1L1wduf6n__ydhycRUUBJz1MGcFEFm7RyIk6zSIBk4KvQSrpEZeoPQ4DkBIO_Juu0cCNVONCR0tiCL3_rDk_qexHZ6Vas1yhdFw_TKcD66sD5vWRoAnDmjhLutwT6uGcTusdDnRxQnROojN6Wyh4wga02vkq55drUzjXzNK1xdgxUyXRew8C7r2sP8lrob6LLQ2IjdE9dwiywOe2mLZfcWXkgiSHWI1__zaP_CzeDDXj7o0BJpPlMBdXzlj69HAuzNWRUkI57k6y3wrxRoLHFm1Dr2xaPJn1fW6bxICf4Yb_7QLlKSRjRfSzQkFZeAZUqbLbQ.cxAhqrMypxhsk7KepwfgI2-EWYikk6JL_mx3eCx1-Ks&ApiVersion=2.1",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-c5187ed9-6a5b-4d90-99f0-9ebebcbef1250251674662076506192500.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-eb8a3299-0d65-493d-8ee3-2de9107169bd0251674662076506192500.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57",
+                    "https://designerapp.officeapps.live.com/designerapp/document.ashx?path=/bb61debf-4bcc-43b9-adf1-a324b8295724/DallEGeneratedImages/dalle-a700047d-4c15-4261-89a7-0f781942fa6a0251674662076506192500.jpg&dcHint=FranceCentral&fileToken=3b5a3983-706c-403f-bd58-34161ed56e57"
+
+                ],
+                moves: [
+                    {
+                        name: "Dreamwalk",
+                        rules: "<strong>16+:</strong> Enter someone's dreams and manipulate their thoughts.<br><strong>11-14:</strong> Enter the dream, but control is limited."
+                    },
+                    {
+                        name: "Nightmare Projection",
+                        rules: "<strong>16+:</strong> Project terrifying illusions, causing fear or mental exhaustion.<br><strong>11-14:</strong> The nightmares are disturbing but less effective."
+                    },
+                    {
+                        name: "Dream Potions",
+                        rules: "Brew potions that induce sleep, enhance creativity, or provide future insights."
+                    },
+                    {
+                        name: "Minor Dreamcraft",
+                        rules: "Perform small acts of dream magic, like sending whispers into sleep or influencing moods."
+                    }
+                ]
+            }
+        };
+
+        const covens = [
+            {
+                name: "Shadowwalkers Circle",
+                patron: "Belial, aspect of deception and shadows.",
+                focus: "Illusions, stealth, and manipulation of reality through shadows."
+            },
+            {
+                name: "Soulweavers Circle",
+                patron: "Mammon, aspect of wealth and power.",
+                focus: "Deals and contracts, using souls as currency to gain influence."
+            },
+            {
+                name: "Flamecallers Circle",
+                patron: "Asmodai, aspect of fire and passion.",
+                focus: "Control of fire, destruction and rebirth through burning."
+            },
+            {
+                name: "Bloodblade Circle",
+                patron: "Azazel, aspect of war and strength.",
+                focus: "Blood magic and sacrifice, physical combat, using blood as power."
+            },
+            {
+                name: "Dreamhunters Circle",
+                patron: "Lilith, aspect of dreams and seduction.",
+                focus: "Manipulating dreams, illusions, influencing desires through dreams."
+            },
+            {
+                name: "Pestbringers Circle",
+                patron: "Abaddon, aspect of death and destruction.",
+                focus: "Plagues, decay, bringing chaos through death and disease."
+            },
+            {
+                name: "Chainbreakers Circle",
+                patron: "Leviathan, aspect of freedom and the ocean.",
+                focus: "Breaking chains, fighting oppression, drawing power from the ocean."
+            }
+        ];
+
+        const npcNames = [
+            "Oliver", "Amelia", "Jack", "Isla", "Harry", "Ava", "Charlie", "Emily", "Thomas", "Sophie",
+            "George", "Grace", "Oscar", "Mia", "James", "Lily", "William", "Evie", "Leo", "Isabella"
+        ];
+
+        const attributeValues = ["+3", "+2", "+1", "0", "-1"];
+        const attributesList = ["Strength", "Dexterity", "Willpower", "Intelligence", "Charisma"];
+
+        let selectedImage = '';
+
+        document.getElementById('archetype').addEventListener('change', function() {
+            const archetype = this.value;
+            if (archetype) {
+                displayCharacterSheet(); // Clear the character sheet when changing archetype
+                displayDrives(archetype);
+                displayNames(archetype);
+                displayProfessions(archetype);
+                displayBonds(archetype);
+                displayBackstories(archetype);
+                displayAttributes();
+                displayMoves(archetype);
+                displayCovens();
+            } else {
+                clearSections();
+            }
+        });
+
+        document.getElementById('randomizeBtn').addEventListener('click', function() {
+            const archetypes = Object.keys(data);
+            const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
+            document.getElementById('archetype').value = randomArchetype;
+            document.getElementById('archetype').dispatchEvent(new Event('change'));
+
+            randomSelect('namesSelect');
+            randomSelect('professionsSelect');
+            randomAttributes();
+            randomSelect('covensSelect');
+            randomizeBonds();
+            randomSelect('backstorySelect');
+            generateCharacterSheet(); // Automatically generate the character sheet
+        });
+
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            generateCharacterSheet();
+        });
+
+        function displayDrives(archetype) {
+            const drivesDiv = document.getElementById('drives');
+            drivesDiv.innerHTML = '<h3>Your Drives</h3><ul>';
+            data[archetype].drives.forEach((drive) => {
+                drivesDiv.innerHTML += `<li>${drive}</li>`;
+            });
+            drivesDiv.innerHTML += '</ul>';
+        }
+
+        function displayNames(archetype) {
+            const namesDiv = document.getElementById('names');
+            namesDiv.innerHTML = '<h3>What is your Name?</h3>';
+            namesDiv.innerHTML += `
+                <select id="namesSelect" class="namesSelect">
+                    <option value="">Select Name</option>
+                    ${data[archetype].names.map(name => `<option value="${name}">${name}</option>`).join('')}
+                </select>`;
+        }
+
+        function displayProfessions(archetype) {
+            const professionsDiv = document.getElementById('professions');
+            professionsDiv.innerHTML = '<h3>What is your Profession?</h3>';
+            professionsDiv.innerHTML += `
+                <select id="professionsSelect" class="professionsSelect">
+                    <option value="">Select Profession</option>
+                    ${data[archetype].professions.map(prof => `<option value="${prof.name}">${prof.name}</option>`).join('')}
+                </select>`;
+            data[archetype].professions.forEach(prof => {
+                professionsDiv.innerHTML += `<div class="profession-description" id="${prof.name.replace(/\s+/g, '')}-desc" style="display:none;">${prof.description}</div>`;
+            });
+            document.getElementById('professionsSelect').addEventListener('change', function() {
+                const selectedProfession = this.value;
+                data[archetype].professions.forEach(prof => {
+                    document.getElementById(`${prof.name.replace(/\s+/g, '')}-desc`).style.display = 'none';
+                });
+                if (selectedProfession) {
+                    document.getElementById(`${selectedProfession.replace(/\s+/g, '')}-desc`).style.display = 'block';
+                }
+            });
+        }
+
+        function displayBonds(archetype) {
+            const bondsDiv = document.getElementById('bonds');
+            bondsDiv.innerHTML = '<h3>Your Bonds</h3>';
+            data[archetype].bonds.forEach((bond, index) => {
+                const bondParts = bond.split('[NPC Name]');
+                bondsDiv.innerHTML += `
+                    <div class="bond-sentence">${bondParts[0]}
+                    <select class="npcSelect" data-index="${index}">
+                        <option value="">Select NPC Name</option>
+                        ${npcNames.map(name => `<option value="${name}">${name}</option>`).join('')}
+                    </select>${bondParts[1]}</div>`;
+            });
+        }
+
+        function displayBackstories(archetype) {
+            const backstoriesDiv = document.getElementById('backstories');
+            backstoriesDiv.innerHTML = '<h3>Your Backstory</h3>';
+            backstoriesDiv.innerHTML += `
+                <select id="backstorySelect" class="backstorySelect">
+                    <option value="">Select Backstory</option>
+                    ${data[archetype].backstories.map((backstory, index) => `<option value="${index}">${backstory.split(':')[0]}</option>`).join('')}
+                </select>`;
+            data[archetype].backstories.forEach((backstory, index) => {
+                backstoriesDiv.innerHTML += `<div class="backstory-option" id="backstory${index}" style="display:none;">${backstory}</div>`;
+            });
+            document.getElementById('backstorySelect').addEventListener('change', function() {
+                const selectedBackstory = this.value;
+                data[archetype].backstories.forEach((_, index) => {
+                    document.getElementById(`backstory${index}`).style.display = 'none';
+                });
+                if (selectedBackstory !== "") {
+                    document.getElementById(`backstory${selectedBackstory}`).style.display = 'block';
+                }
+            });
+        }
+
+        function displayAttributes() {
+            const attributesDiv = document.getElementById('attributes');
+            attributesDiv.innerHTML = '<h3>Set your Attributes (+3, +2, +1, 0, -1)</h3><div class="attributes">';
+            attributesList.forEach((attribute) => {
+                attributesDiv.innerHTML += `
+                    <label>${attribute}<br>
+                        <select class="attributesSelect" name="${attribute}">
+                            <option value="">Select</option>
+                            ${attributeValues.map(val => `<option value="${val}">${val}</option>`).join('')}
+                        </select>
+                    </label>`;
+            });
+            attributesDiv.innerHTML += '</div>';
+            initAttributeSelection();
+        }
+
+        function initAttributeSelection() {
+            const selects = document.querySelectorAll('.attributesSelect');
+            selects.forEach(select => {
+                select.addEventListener('change', function() {
+                    updateAttributeOptions();
+                });
+            });
+        }
+
+        function updateAttributeOptions() {
+            const selectedValues = Array.from(document.querySelectorAll('.attributesSelect')).map(select => select.value);
+            document.querySelectorAll('.attributesSelect').forEach(select => {
+                const currentValue = select.value;
+                select.querySelectorAll('option').forEach(option => {
+                    if (option.value !== "" && option.value !== currentValue && selectedValues.includes(option.value)) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                });
+            });
+        }
+
+        function displayMoves(archetype) {
+            const movesDiv = document.getElementById('moves');
+            movesDiv.innerHTML = ''; // Moves are omitted in the selection phase
+        }
+
+        function displayCovens() {
+            const covensDiv = document.getElementById('covens');
+            covensDiv.innerHTML = '<h3>Choose your Coven (chosen by all players together)</h3>';
+            covensDiv.innerHTML += `
+                <select id="covensSelect" class="covensSelect">
+                    <option value="">Select Coven</option>
+                    ${covens.map(coven => `<option value="${coven.name}">${coven.name}</option>`).join('')}
+                </select>`;
+            covens.forEach(coven => {
+                covensDiv.innerHTML += `<div class="coven-description" id="${coven.name.replace(/\s+/g, '')}-desc" style="display:none;">
+                    <strong>Patron:</strong> ${coven.patron}<br>
+                    <strong>Focus:</strong> ${coven.focus}
+                </div>`;
+            });
+            document.getElementById('covensSelect').addEventListener('change', function() {
+                const selectedCoven = this.value;
+                covens.forEach(coven => {
+                    document.getElementById(`${coven.name.replace(/\s+/g, '')}-desc`).style.display = 'none';
+                });
+                if (selectedCoven) {
+                    document.getElementById(`${selectedCoven.replace(/\s+/g, '')}-desc`).style.display = 'block';
+                }
+            });
+        }
+
+        function generateCharacterSheet() {
+            const archetype = document.getElementById('archetype').value;
+            if (!archetype) {
+                alert('Please select an archetype.');
+                return;
+            }
+
+            const selectedName = document.getElementById('namesSelect').value;
+            if (!selectedName) {
+                alert('Please select a name.');
+                return;
+            }
+
+            const selectedProfession = document.getElementById('professionsSelect').value;
+            if (!selectedProfession) {
+                alert('Please select a profession.');
+                return;
+            }
+
+            const selectedAttributes = {};
+            const selectedAttributeValues = [];
+            let attributesValid = true;
+
+            document.querySelectorAll('.attributesSelect').forEach(select => {
+                const value = select.value;
+                if (!value) {
+                    attributesValid = false;
+                }
+                selectedAttributes[select.name] = value;
+                selectedAttributeValues.push(value);
+            });
+
+            if (!attributesValid || selectedAttributeValues.length !== new Set(selectedAttributeValues).size) {
+                alert('Please assign each attribute a unique value from +3, +2, +1, 0, -1.');
+                return;
+            }
+
+            const selectedCoven = document.getElementById('covensSelect').value;
+            if (!selectedCoven) {
+                alert('Please select a coven.');
+                return;
+            }
+
+            const selectedBonds = [];
+            const npcSelects = document.querySelectorAll('.npcSelect');
+            let bondsValid = true;
+
+            npcSelects.forEach((select, index) => {
+                const npcName = select.value;
+                if (!npcName) {
+                    bondsValid = false;
+                }
+                const bondText = data[archetype].bonds[index].replace('[NPC Name]', npcName);
+                selectedBonds.push(bondText);
+            });
+
+            if (!bondsValid) {
+                alert('Please select a name for each NPC in your bonds.');
+                return;
+            }
+
+            const backstoryIndex = document.getElementById('backstorySelect').value;
+            if (backstoryIndex === "") {
+                alert('Please select a backstory.');
+                return;
+            }
+            const selectedBackstory = data[archetype].backstories[backstoryIndex];
+
+            // Select a random image for the archetype
+            const images = data[archetype].images;
+            selectedImage = images[Math.floor(Math.random() * images.length)];
+
+            // Get explanations
+            const professionDesc = data[archetype].professions.find(prof => prof.name === selectedProfession).description;
+            const covenData = covens.find(coven => coven.name === selectedCoven);
+            const archetypeDescription = data[archetype].description;
+            const professionExplanation = `Your profession as a ${selectedProfession}: ${professionDesc}`;
+            const covenExplanation = `Member of the ${selectedCoven}, devoted to ${covenData.patron}`;
+
+            const characterSheetDiv = document.getElementById('characterSheet');
+            characterSheetDiv.innerHTML = `
+                <img src="${selectedImage}" alt="Character Image" class="character-image">
+                <h2>${selectedName}</h2>
+                <p><strong>Archetype:</strong> ${archetype}</p>
+                <p>${archetypeDescription}</p>
+                <p><strong>Profession:</strong> ${selectedProfession}</p>
+                <p>${professionExplanation}</p>
+                <p><strong>Coven:</strong> ${selectedCoven}</p>
+                <p>${covenExplanation}</p>
+                <h3>Your Drives</h3>
+                <ul>${data[archetype].drives.map(drive => `<li>${drive}</li>`).join('')}</ul>
+                <h3>Your Backstory</h3>
+                <p>${selectedBackstory}</p>
+                <h3>Attributes</h3>
+                <ul>${Object.keys(selectedAttributes).map(attr => `<li>${attr}: ${selectedAttributes[attr]}</li>`).join('')}</ul>
+                <h3>Your Standard Moves</h3>
+                <ul>
+                    ${data[archetype].moves.map(move => `<li><strong>${move.name}:</strong> ${move.rules}</li>`).join('')}
+                </ul>
+                <h3>Your Bonds</h3>
+                <ul>${selectedBonds.map(bond => `<li>${bond}</li>`).join('')}</ul>
+            `;
+            characterSheetDiv.style.display = 'block';
+            characterSheetDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearSections() {
+            document.getElementById('drives').innerHTML = '';
+            document.getElementById('names').innerHTML = '';
+            document.getElementById('professions').innerHTML = '';
+            document.getElementById('bonds').innerHTML = '';
+            document.getElementById('backstories').innerHTML = '';
+            document.getElementById('attributes').innerHTML = '';
+            document.getElementById('moves').innerHTML = '';
+            document.getElementById('covens').innerHTML = '';
+            document.getElementById('characterSheet').style.display = 'none';
+        }
+
+        function randomSelect(selectId) {
+            const select = document.getElementById(selectId);
+            if (select) {
+                const options = Array.from(select.options).filter(option => option.value);
+                if (options.length > 0) {
+                    const randomOption = options[Math.floor(Math.random() * options.length)].value;
+                    select.value = randomOption;
+                    select.dispatchEvent(new Event('change'));
+                }
+            }
+        }
+
+        function randomAttributes() {
+            const shuffledValues = attributeValues.sort(() => 0.5 - Math.random());
+            const selects = document.querySelectorAll('.attributesSelect');
+            selects.forEach((select, index) => {
+                select.value = shuffledValues[index];
+            });
+            updateAttributeOptions();
+        }
+
+        function randomizeBonds() {
+            const npcSelects = document.querySelectorAll('.npcSelect');
+            npcSelects.forEach(select => {
+                const randomName = npcNames[Math.floor(Math.random() * npcNames.length)];
+                select.value = randomName;
+            });
+        }
+
+        function displayCharacterSheet() {
+            const characterSheetDiv = document.getElementById('characterSheet');
+            characterSheetDiv.innerHTML = '';
+            characterSheetDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
